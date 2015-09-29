@@ -1,0 +1,55 @@
+Features of my miniproject:
+Two player chess:
+-------------------Menus:--------------------------------------
+Undo last full move (black plus white)
+Restart game
+White/black resigns
+A count of the points of each player
+
+
+
+
+
+------------------Game Features:--------------------------------
+Prints all pieces using GUI/on terminal (to be decided later)
+Recognizes and allows only valid moves
+Castling, check, checkmate, en passant (?), pawn promotion,
+capturing, stalemate, 50 move rule (?)
+
+
+
+
+------------------Functions:------------------------------------
+Initialise board
+Print board
+Interfacing with GUI
+Check if valid move (includes castle, en passant, promotion, capture)
+Move piece(?)
+Check/Checkmate
+-----------------------------------------------------------------
+
+
+
+----------------Implementation:----------------------------------
+120 square array for board. convert E4/e4 (enumed to some 0-63 value)
+notation to array index, board is array of structures, info about 
+whether on board square or not, occupied by which piece, castling bit(?), 
+whether en passant square or not. 
+
+
+Each piece is a unique enumed value 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
