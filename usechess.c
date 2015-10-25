@@ -24,14 +24,19 @@ int main() {
 			break;
                 d = selectsquare(&b, dest);
 		if(s.row != -1 && s.column != -1 && d.row != -1 && d.column != -1) {
+			mv = validmove(&b, s, d, WHITE);
+			if (mv == 1)
+				wprintf(L"wow\n");
+			else 
+				wprintf(L"nope\n");
                 	mv = movepiece(&b, s, d);
 			if (!mv) {
-				wprintf(L"the entered square is not valid\n");
+				wprintf(L"the entered coordinates are not valid, please try again\n");
 				continue;
 			}
 		}
 		else	{
-			wprintf(L"invalid move, please try again\n");
+			wprintf(L"invalid square selected, please try again\n");
 			continue;
 		}	
                 printboard(&b);

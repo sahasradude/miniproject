@@ -4,5 +4,5 @@ typedef struct coordinates {
 }coordinates;
 coordinates selectsquare(board *b, wchar_t *move);
 int movepiece(board *b, coordinates s, coordinates d);
-void validmove(board *b);
+int validmove(board *b, coordinates s, coordinates d, char player);
 
