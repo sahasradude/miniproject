@@ -1,6 +1,5 @@
 #include <wchar.h>
 #include <locale.h>
-
 enum {none = 0, wp, wN, wB, wR, wQ , wK, bp, bN, bB, bR, bQ, bK}; //values of all white and black pieces, along with value of no piece
 enum {c_a = 2,c_b,c_c,c_d,c_e,c_f,c_g,c_h};//rank and file corresponding to array index sq[2][2] = a8, etc.
 enum {c_8 = 2,c_7,c_6,c_5,c_4,c_3,c_2,c_1};
@@ -9,6 +8,8 @@ enum {c_8 = 2,c_7,c_6,c_5,c_4,c_3,c_2,c_1};
 #define OCCUPIED 2
 #define CASTLE_SQ 4
 #define EN_PASSANT 8
+#define WHITE 16
+#define BLACK 32
 #define u_wp L'\x2659' //unicode for all the chess pieces and associated printable characters 
 #define u_wN L'\x2658' 
 #define u_wB L'\x2657' 
@@ -21,7 +22,8 @@ enum {c_8 = 2,c_7,c_6,c_5,c_4,c_3,c_2,c_1};
 #define u_bR L'\x265C' 
 #define u_bQ L'\x265B' 
 #define u_bK L'\x265A'
-#define u_none L'\x25A1'
+#define u_none_white L'\x25A1'
+#define u_none_black L'\x25A0'
 #define u_space L'\x0020'
 #define u_nl L'\x000A'
 #define u_1 L'\x0031'

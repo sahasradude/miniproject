@@ -1,7 +1,5 @@
 #include <stdio.h>
-#include "chess.h"
-#include <wchar.h>
-#include <locale.h>
+#include "setup_printchess.h"
 void initboard (board *b) {
 	int i, j;
 	for (i = 0; i < 12; i++) {
@@ -14,9 +12,9 @@ void initboard (board *b) {
 	}
 }
 void setboard (board *b) {
-//assumes initialised
-//change all occupied squares to occupied, 
-// set pieces on occupied squares,
+	//assumes initialised
+	//change all occupied squares to occupied, 
+	// set pieces on occupied squares,
 	int i,j;
 	i = c_a;
 	while(i<=c_h) { // sets white pawns;
@@ -77,7 +75,6 @@ void setboard (board *b) {
 
 void printboard(board *b) {
 	int i, j;
-	setlocale(LC_ALL, "");
 	for (i = 0; i < 12; i++) {
 		switch (i) {
 			case 2:
@@ -112,8 +109,12 @@ void printboard(board *b) {
 				if (b->sq[i][j].info & OCCUPIED) {
 					wprintf(L" %lc ", b->sq[i][j].piece);
 				}
-				else
-					wprintf(L"%lc%lc%lc", u_space, u_none, u_space);
+				else {
+					if ((i+j)%2 == 0) 
+						wprintf(L"%lc%lc%lc", u_space, u_none_white, u_space);
+					else 
+						wprintf(L"%lc%lc%lc", u_space, u_none_white, u_space);	
+				}
 
 			}
 			else 
@@ -122,11 +123,4 @@ void printboard(board *b) {
 		wprintf(L"%lc", u_nl);
 	}
 	wprintf(L"        %lc  %lc  %lc  %lc  %lc  %lc  %lc  %lc\n", u_a,u_b,u_c,u_d,u_e,u_f,u_g,u_h);
-}
-int main() {
-	board b;
-	initboard(&b);
-	setboard(&b);
-	printboard(&b);
-	return 0;
 }

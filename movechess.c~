@@ -1,0 +1,13 @@
+#include "setup_printchess.h"
+#include "movechess.h"
+#include "setup_printchess.c"
+// N, R, K, Q, B, a-h, are pieces
+//a1-h8 are moves
+//moves can be of the following forms: Ne4, Nxe4, e4, 0-0, 0-0-0, exd4
+void validmove(board *b);
+void movemake(board *b) {
+	char move[8];
+	int i = 0;
+	while (scanf("%s",move) != -1) {
+		if (
+

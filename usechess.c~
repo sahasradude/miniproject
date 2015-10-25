@@ -1,0 +1,32 @@
+#include <stdio.h>
+#include "movechess.h"
+int main() {
+        board b;
+        initboard(&b);
+        setboard(&b);
+        printf("WELCOME TO CHESS. TO QUIT, ENTER -1 AS MOVE COORDINATES\n");
+        printboard(&b);
+        coordinates s, d;
+        int i = 0;
+        char source[16], dest[16];
+        printf("WHITE TO PLAY\n");
+        while(1) {
+                printf("enter coordinates of piece to move:\n");
+                if(scanf("%s", source) == -1)
+			break;
+                s = selectsquare(&b, source);
+                printf("enter coordinates of location to move to:\n");
+                if(scanf("%s", dest) == -1)
+			break;
+                d = selectsquare(&b, dest);
+                movepiece(&b, s, d);
+                printboard(&b);
+                i++;
+                if (i%2 == 0)
+                        printf("WHITE TO PLAY\n");
+                else
+                        printf("BLACK TO PLAY\n");
+                return 0;
+        }
+}
+
