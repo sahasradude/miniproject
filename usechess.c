@@ -7,6 +7,7 @@ int main() {
         board b;
         initboard(&b);
         setboard(&b);
+	char state = WHITE;
         wprintf(L"WELCOME TO CHESS. TO QUIT, PRESS CTRL+D AS MOVE COORDINATES\n");
         printboard(&b);
         coordinates s, d;
@@ -24,11 +25,11 @@ int main() {
 			break;
                 d = selectsquare(&b, dest);
 		if(s.row != -1 && s.column != -1 && d.row != -1 && d.column != -1) {
-			mv = validmove(&b, s, d, WHITE);
-			if (mv == 1)
-				wprintf(L"wow\n");
-			else 
-				wprintf(L"nope\n");
+			mv = validmove(&b, s, d, state);
+			if (mv == 0) {
+				wprintf(L"this is not a valid move, please try again\n");
+				continue;
+			}
                 	mv = movepiece(&b, s, d);
 			if (!mv) {
 				wprintf(L"the entered coordinates are not valid, please try again\n");
@@ -41,10 +42,14 @@ int main() {
 		}	
                 printboard(&b);
                 i++;
-                if (i%2 == 0)
+                if (i%2 == 0) {
+			state = WHITE;
                         wprintf(L"WHITE TO PLAY\n");
-                else
+		}
+                else {
+			state = BLACK;
                         wprintf(L"BLACK TO PLAY\n");
+		}
         }
 	return 0;
 }

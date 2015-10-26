@@ -18,6 +18,7 @@ en passant: if that particular square is en passant then do it
 	//if a piece is in the way then that move cannot be made except for knight
 	//if that square is under attack then king can't move there
 	//if moving that piece causes a check, or if there is currently a check to my king
+	int i;
 	if(player == WHITE) {
 		if (b->sq[s.row][s.column].piece == u_wN) {
 			if(((d.row == s.row + 1 || d.row == s.row - 1) && (d.column == s.column + 2 || d.column == s.column - 2)) || ((d.row == s.row + 2 || d.row == s.row - 2) && (d.column == s.column + 1 || d.column == s.column - 1)))
@@ -26,26 +27,39 @@ en passant: if that particular square is en passant then do it
 				return 0;
 		}
 		if(b->sq[s.row][s.column].piece == u_wR) {
-			if(d.row == s.row ^ d.column == s.column)
+			if(d.row == s.row ^ d.column == s.column) {
+				if(d.row == s.row) {
+					for (i = (d.column < s.column ? d.column: s.column) ; i < (d.column > s.column ? d.column: s.column); i++)
+						if(b->sq[s.row][i].info & OCCUPIED)
+							return 0;
+				}
+				else if(d.column == s.column) {
+					for(i = (d.row < s.row ? d.row: s.row); i < (d.row > s.row ? d.row: s.row); i++)
+						if(b->sq[i][s.column].info & OCCUPIED)
+							return 0;
+				}
 				return 1;
+			}
 			else
 				return 0;
 		}
 		if(b->sq[s.row][s.column].piece == u_wB) {
-			if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column)))
+			if (d.row == s.row && d.column == s.column)
+				return 0;
+			if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) 
 				return 1;
 			else
 				return 0;
 		}
 		if(b->sq[s.row][s.column].piece == u_wp) {
 			if(s.row == c_2) {
-				if (((d.row == s.row + 1) && (d.column == s.column)) || ((d.row == s.row + 2) && (d.column == s.column))) 
+				if (((d.row == s.row - 1) && (d.column == s.column)) || ((d.row == s.row - 2) && (d.column == s.column))) 
 					return 1;
 				else
 					return 0;
 			}
 			else {
-				if ((d.row == s.row + 1) && (d.column == s.column)) 
+				if ((d.row == s.row - 1) && (d.column == s.column)) 
 					return 1;
 				else
 					return 0;
