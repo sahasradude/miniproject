@@ -1,6 +1,17 @@
 #include "movechess.h"
+#include <math.h>
 // N, R, K, Q, B, a-h, are pieces
-//a1-h8 are moves  
+//a1-h8 are moves
+void storepos(board b) {
+	node * temp = (node *) malloc(sizeof(node));
+	temp->b = b;
+	temp->next = NULL;
+
+
+
+void undo(node *head) {
+	node *temp;
+	  
 int validmove(board *b, coordinates s, coordinates d, char player) {
 	//receives the coordinates of the move and tells if it is a valid move
 	//assert: source square has a piece, destination is a valid square 
@@ -18,7 +29,7 @@ en passant: if that particular square is en passant then do it
 	//if a piece is in the way then that move cannot be made except for knight
 	//if that square is under attack then king can't move there
 	//if moving that piece causes a check, or if there is currently a check to my king
-	int i;
+	int i, j, rvector, cvector;
 	if(player == WHITE) {
 		if (b->sq[s.row][s.column].piece == u_wN) {
 			if(((d.row == s.row + 1 || d.row == s.row - 1) && (d.column == s.column + 2 || d.column == s.column - 2)) || ((d.row == s.row + 2 || d.row == s.row - 2) && (d.column == s.column + 1 || d.column == s.column - 1)))
@@ -46,8 +57,15 @@ en passant: if that particular square is en passant then do it
 		if(b->sq[s.row][s.column].piece == u_wB) {
 			if (d.row == s.row && d.column == s.column)
 				return 0;
-			if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) 
+			if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) {
+				rvector = (d.row - s.row) / abs(d.row - s.row); 
+				cvector = (d.column - s.column) / abs(d.row - s.row);
+				for(i = s.row + rvector; i != d.row; i = i + rvector)
+					for(j = s.column + cvector; j != d.column; j = j + cvector)
+						if(b->sq[i][j].info & OCCUPIED)
+							return 0;
 				return 1;
+			}
 			else
 				return 0;
 		}
@@ -55,11 +73,15 @@ en passant: if that particular square is en passant then do it
 			if(s.row == c_2) {
 				if (((d.row == s.row - 1) && (d.column == s.column)) || ((d.row == s.row - 2) && (d.column == s.column))) 
 					return 1;
+				else if((d.row == s.row - 1 && (d.column == s.column + 1 || d.column == s.column - 1)) && (b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp))
+					return 1;
 				else
 					return 0;
 			}
 			else {
 				if ((d.row == s.row - 1) && (d.column == s.column)) 
+					return 1;
+				else if((d.row == s.row - 1 && (d.column == s.column + 1 || d.column == s.column - 1)) && (b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp))
 					return 1;
 				else
 					return 0;
