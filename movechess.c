@@ -1,17 +1,7 @@
 #include "movechess.h"
 #include <math.h>
 // N, R, K, Q, B, a-h, are pieces
-//a1-h8 are moves
-void storepos(board b) {
-	node * temp = (node *) malloc(sizeof(node));
-	temp->b = b;
-	temp->next = NULL;
-
-
-
-void undo(node *head) {
-	node *temp;
-	  
+//a1-h8 are moves	  
 int validmove(board *b, coordinates s, coordinates d, char player) {
 	//receives the coordinates of the move and tells if it is a valid move
 	//assert: source square has a piece, destination is a valid square 

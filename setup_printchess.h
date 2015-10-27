@@ -1,3 +1,5 @@
+#ifndef SETUP_PRINTCHESS_H
+#define SETUP_PRINTCHESS_H
 #include <wchar.h>
 #include <locale.h>
 enum {none = 0, wp, wN, wB, wR, wQ , wK, bp, bN, bB, bR, bQ, bK}; //values of all white and black pieces, along with value of no piece
@@ -52,3 +54,4 @@ typedef struct board {
 void initboard (board *b); //sets all squares to offboard or onboard, piece to none
 void setboard (board *b); //sets up board in starting position
 void printboard(board *b); //prints board
+#endif
