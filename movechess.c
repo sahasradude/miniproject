@@ -1,7 +1,9 @@
 #include "movechess.h"
 #include <math.h>
 // N, R, K, Q, B, a-h, are pieces
-//a1-h8 are moves	  
+//a1-h8 are moves
+extern coordinates w_kingsq;
+extern coordinates b_kingsq;
 int validmove(board *b, coordinates s, coordinates d, char player) {
 	//receives the coordinates of the move and tells if it is a valid move
 	//assert: source square has a piece, destination is a valid square 
@@ -21,21 +23,25 @@ en passant: if that particular square is en passant then do it
 	//if moving that piece causes a check, or if there is currently a check to my king
 	int i, j, rvector, cvector;
 	if(player == WHITE) {
+		if(b->sq[d.row][d.column].piece >= u_wK && b->sq[d.row][d.column].piece <= u_wp) {
+			//wprintf(L"destination piece occupied error!?\n");
+			return 0;
+		}
 		if (b->sq[s.row][s.column].piece == u_wN) {
 			if(((d.row == s.row + 1 || d.row == s.row - 1) && (d.column == s.column + 2 || d.column == s.column - 2)) || ((d.row == s.row + 2 || d.row == s.row - 2) && (d.column == s.column + 1 || d.column == s.column - 1)))
 				return 1;
 			else
 				return 0;
 		}
-		if(b->sq[s.row][s.column].piece == u_wR) {
+		else if(b->sq[s.row][s.column].piece == u_wR) {
 			if(d.row == s.row ^ d.column == s.column) {
 				if(d.row == s.row) {
-					for (i = (d.column < s.column ? d.column: s.column) ; i < (d.column > s.column ? d.column: s.column); i++)
+					for (i = (d.column < s.column ? d.column: s.column) + 1 ; i < (d.column > s.column ? d.column: s.column); i++)
 						if(b->sq[s.row][i].info & OCCUPIED)
 							return 0;
 				}
 				else if(d.column == s.column) {
-					for(i = (d.row < s.row ? d.row: s.row); i < (d.row > s.row ? d.row: s.row); i++)
+					for(i = (d.row < s.row ? d.row: s.row)+1; i < (d.row > s.row ? d.row: s.row); i++)
 						if(b->sq[i][s.column].info & OCCUPIED)
 							return 0;
 				}
@@ -44,50 +50,227 @@ en passant: if that particular square is en passant then do it
 			else
 				return 0;
 		}
-		if(b->sq[s.row][s.column].piece == u_wB) {
+		else if(b->sq[s.row][s.column].piece == u_wB) {
 			if (d.row == s.row && d.column == s.column)
 				return 0;
 			if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) {
 				rvector = (d.row - s.row) / abs(d.row - s.row); 
 				cvector = (d.column - s.column) / abs(d.row - s.row);
-				for(i = s.row + rvector; i != d.row; i = i + rvector)
-					for(j = s.column + cvector; j != d.column; j = j + cvector)
-						if(b->sq[i][j].info & OCCUPIED)
-							return 0;
+				i = s.row + rvector;
+				j = s.column + cvector;
+				while(i != d.row) {
+					if(b->sq[i][j].info & OCCUPIED)
+						return 0;
+					i = i + rvector;
+					j = j + cvector;
+				}
 				return 1;
 			}
 			else
 				return 0;
 		}
-		if(b->sq[s.row][s.column].piece == u_wp) {
+		else if(b->sq[s.row][s.column].piece == u_wp) {
 			if(s.row == c_2) {
-				if (((d.row == s.row - 1) && (d.column == s.column)) || ((d.row == s.row - 2) && (d.column == s.column))) 
+				if (((d.row == s.row - 1) && (d.column == s.column)) || ((d.row == s.row - 2) && (d.column == s.column))){ 
+					if(b->sq[d.row][d.column].info & OCCUPIED)
+						return 0; 
 					return 1;
+				}
 				else if((d.row == s.row - 1 && (d.column == s.column + 1 || d.column == s.column - 1)) && (b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp))
 					return 1;
 				else
 					return 0;
 			}
 			else {
-				if ((d.row == s.row - 1) && (d.column == s.column)) 
+				if ((d.row == s.row - 1) && (d.column == s.column)){ 
+					if(b->sq[d.row][d.column].info & OCCUPIED)
+						return 0; 
 					return 1;
+				}
 				else if((d.row == s.row - 1 && (d.column == s.column + 1 || d.column == s.column - 1)) && (b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp))
 					return 1;
 				else
 					return 0;
 			}
 		}
+		else if(b->sq[s.row][s.column].piece == u_wQ) {
+			//wprintf(L"white queen selected\n");
+			if(d.row == s.row && d.column == s.column)
+				return 0;
+			if (d.row == s.row || d.column == s.column) {
+				if(d.row == s.row) {
+					for (i = (d.column < s.column ? d.column: s.column)+1 ; i < (d.column > s.column ? d.column: s.column); i++)
+						if(b->sq[s.row][i].info & OCCUPIED)
+							return 0;
+				}
+				else if(d.column == s.column) {
+					for(i = (d.row < s.row ? d.row: s.row)+1; i < (d.row > s.row ? d.row: s.row); i++)
+						if(b->sq[i][s.column].info & OCCUPIED)
+							return 0;
+				}
+				else 
+					return 1;
+			}
+			else if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) {
+				rvector = (d.row - s.row) / abs(d.row - s.row); 
+				cvector = (d.column - s.column) / abs(d.row - s.row);
+				i = s.row + rvector;
+				j = s.column + cvector;
+				while(i != d.row) {
+					if(b->sq[i][j].info & OCCUPIED)
+						return 0;
+					i = i + rvector;
+					j = j + cvector;
+				}
+				return 1;
+			}
+			else {
+				//wprintf(L"white queen returns 0\n");
+				return 0;
+			}
+		}
+		else if(b->sq[s.row][s.column].piece == u_wK) {
+			if (d.row == s.row && d.column == s.column)
+				return 0;
+			if (b->sq[d.row][d.column].info & ATTACKED)
+				return 0;
+			if((abs(s.row - d.row) <= 1) && (abs(s.column - d.column) <= 1)) { 
+				w_kingsq.row = d.row;
+				w_kingsq.column = d.column;
+				return 1;
+			}
+			else 
+				return 0;
+		}
+		else {
+			//wprintf(L"inside else of general white\n");
+			return 0;
+		}
+	}		
+	else if(player == BLACK) {
+		if(b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp)
+			return 0;
+		if (b->sq[s.row][s.column].piece == u_bN) {
+			if(((d.row == s.row + 1 || d.row == s.row - 1) && (d.column == s.column + 2 || d.column == s.column - 2)) || ((d.row == s.row + 2 || d.row == s.row - 2) && (d.column == s.column + 1 || d.column == s.column - 1)))
+				return 1;
+			else
+				return 0;
+		}
+		else if(b->sq[s.row][s.column].piece == u_bR) {
+			if(d.row == s.row ^ d.column == s.column) {
+				if(d.row == s.row) {
+					for (i = (d.column < s.column ? d.column: s.column)+1 ; i < (d.column > s.column ? d.column: s.column); i++)
+						if(b->sq[s.row][i].info & OCCUPIED)
+							return 0;
+				}
+				else if(d.column == s.column) {
+					for(i = (d.row < s.row ? d.row: s.row)+1; i < (d.row > s.row ? d.row: s.row); i++)
+						if(b->sq[i][s.column].info & OCCUPIED)
+							return 0;
+				}
+				return 1;
+			}
+			else
+				return 0;
+		}
+		else if(b->sq[s.row][s.column].piece == u_bB) {
+			if (d.row == s.row && d.column == s.column)
+				return 0;
+			if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) {
+				rvector = (d.row - s.row) / abs(d.row - s.row); 
+				cvector = (d.column - s.column) / abs(d.row - s.row);
+				i = s.row + rvector;
+				j = s.column + cvector;
+				while(i != d.row) {
+					if(b->sq[i][j].info & OCCUPIED)
+						return 0;
+					i = i + rvector;
+					j = j + cvector;
+				}
+				return 1;
+			}
+			else
+				return 0;
+		}
+		else if(b->sq[s.row][s.column].piece == u_bp) {
+			if(s.row == c_7) {
+				if(((d.row == s.row + 1) && (d.column == s.column)) || ((d.row == s.row + 2) && (d.column == s.column))){
+					if(b->sq[d.row][d.column].info & OCCUPIED)
+						return 0; 
+					return 1;
+				}
+				else if((d.row == s.row + 1 && (d.column == s.column + 1 || d.column == s.column - 1)) && (b->sq[d.row][d.column].piece >= u_wK && b->sq[d.row][d.column].piece <= u_wp))
+					return 1;
+				else
+					return 0;
+			}
+			else {
+				if ((d.row == s.row + 1) && (d.column == s.column)){ 
+					if(b->sq[d.row][d.column].info & OCCUPIED)
+						return 0; 
+					return 1;
+				}
+				else if((d.row == s.row + 1 && (d.column == s.column + 1 || d.column == s.column - 1)) && (b->sq[d.row][d.column].piece >= u_wK && b->sq[d.row][d.column].piece <= u_wp))
+					return 1;
+				else
+					return 0;
+			}
+		}
+		else if(b->sq[s.row][s.column].piece == u_bQ) {
+			//wprintf(L"black queen selected\n");
+			if(d.row == s.row && d.column == s.column)
+				return 0;
+			if (d.row == s.row || d.column == s.column) {
+				if(d.row == s.row) {
+					for (i = (d.column < s.column ? d.column: s.column)+1 ; i < (d.column > s.column ? d.column: s.column); i++)
+						if(b->sq[s.row][i].info & OCCUPIED)
+							return 0;
+				}
+				else if(d.column == s.column) {
+					for(i = (d.row < s.row ? d.row: s.row)+1; i < (d.row > s.row ? d.row: s.row); i++)
+						if(b->sq[i][s.column].info & OCCUPIED)
+							return 0;
+				}
+				else 
+					return 1;
+			}
+			else if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) {
+				rvector = (d.row - s.row) / abs(d.row - s.row); 
+				cvector = (d.column - s.column) / abs(d.row - s.row);
+				i = s.row + rvector;
+				j = s.column + cvector;
+				while(i != d.row) {
+					if(b->sq[i][j].info & OCCUPIED)
+						return 0;
+					i = i + rvector;
+					j = j + cvector;
+				}
+				return 1;
+			}
+			else {
+				//wprintf(L"black queen returns 0\n");
+				return 0;
+			}
+		}
+		else if(b->sq[s.row][s.column].piece == u_bK) {
+			if (d.row == s.row && d.column == s.column)
+				return 0;
+			if (b->sq[d.row][d.column].info & ATTACKED)
+				return 0;
+			if((abs(s.row - d.row) <= 1) && (abs(s.column - d.column) <= 1)) {
+				b_kingsq.row = d.row;
+				b_kingsq.column = d.column;
+				return 1;
+			}
+			else 
+				return 0;
+		}
+		else {
+			//wprintf(L"inside else of general black\n");
+			return 0;
+		}
 	}
 }
-
-
-
-int attacking_squares(board *b, char player);
-// if player is white, for each white piece, see which squares it can move to.
-//go in board, store coordinates of each white piece, then pass that as source to a variant of validmove, and pass all other squares as destination. if there is a valid move to that square, then it is an attacking square for that piece. mark it so.
-int check_checkmate() {
-	//every square an opposition piece is attacking is known, see all king moves, count no of free squares. if zero, and check, then checkmate.
-}	
 
 coordinates selectsquare(board *b, wchar_t *move) { //finds coordinates of given move in terms of 12x12 array
 	int i = 0;
@@ -116,6 +299,7 @@ int movepiece(board *b, coordinates s, coordinates d) { // moves piece on coordi
 		b->sq[s.row][s.column].info = b->sq[s.row][s.column].info - OCCUPIED;
 		b->sq[d.row][d.column].info = b->sq[d.row][d.column].info | OCCUPIED;
 		b->sq[d.row][d.column].piece = b->sq[s.row][s.column].piece;
+		b->sq[s.row][s.column].piece = u_none;
 		return 1;
 	}
 

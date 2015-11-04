@@ -4,7 +4,7 @@ void initboard (board *b) {
 	int i, j;
 	for (i = 0; i < 12; i++) {
 		for (j = 0; j < 12; j++) {
-			if ((i >=2 && i <=9) && (j >=2 && j <=9)) 
+			if ((i >=c_a && i <= c_h) && (j >= c_8 && j <= c_1)) 
 				b->sq[i][j].info = ONBOARD;
 			else 
 				b->sq[i][j].info = OFFBOARD;
@@ -16,6 +16,9 @@ void setboard (board *b) {
 	//change all occupied squares to occupied, 
 	// set pieces on occupied squares,
 	int i,j;
+	for (j = c_8; j <= c_1; j++)
+		for (i = c_a; i <= c_h; i++)
+			b->sq[j][i].piece = u_none;
 	i = c_a;
 	while(i<=c_h) { // sets white pawns;
 		b->sq[c_2][i].piece = u_wp;
@@ -78,49 +81,39 @@ void printboard(board *b) {
 	for (i = 0; i < 12; i++) {
 		switch (i) {
 			case 2:
-				wprintf(L"%lc", u_8);
+				wprintf(L"8");
 				break;
 			case 3:
-				wprintf(L"%lc", u_7);
+				wprintf(L"7");
 				break;
 			case 4:
-				wprintf(L"%lc", u_6);
+				wprintf(L"6");
 				break;
 			case 5:
-				wprintf(L"%lc", u_5);
+				wprintf(L"5");
 				break;
 			case 6:
-				wprintf(L"%lc", u_4);
+				wprintf(L"4");
 				break;
 			case 7:
-				wprintf(L"%lc", u_3);
+				wprintf(L"3");
 				break;
 			case 8:
-				wprintf(L"%lc", u_2);
+				wprintf(L"2");
 				break;
 			case 9:
-				wprintf(L"%lc", u_1);
+				wprintf(L"1");
 				break;
 			default:
 				break;
 		}
 		for (j = 0; j < 12; j++) {
-			if (b->sq[i][j].info & ONBOARD) {
-				if (b->sq[i][j].info & OCCUPIED) {
+			if (b->sq[i][j].info & ONBOARD)
 					wprintf(L" %lc ", b->sq[i][j].piece);
-				}
-				else {
-					if ((i+j)%2 == 0) 
-						wprintf(L"%lc%lc%lc", u_space, u_none_white, u_space);
-					else 
-						wprintf(L"%lc%lc%lc", u_space, u_none_white, u_space);	
-				}
-
-			}
 			else 
-				wprintf(L"%lc%lc%lc", u_space,u_space,u_space);
+				wprintf(L"   ");
 		}
-		wprintf(L"%lc", u_nl);
+		wprintf(L"\n");
 	}
-	wprintf(L"        %lc  %lc  %lc  %lc  %lc  %lc  %lc  %lc\n", u_a,u_b,u_c,u_d,u_e,u_f,u_g,u_h);
+	wprintf(L"        a  b  c  d  e  f  g  h\n");
 }

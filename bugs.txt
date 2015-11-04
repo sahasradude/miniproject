@@ -1,0 +1,6 @@
+in validmove:
+	queen move not working for certain values, eq: Q d1 to e2 not happening after e2-e4
+	king moves not done
+	
+
+no check, checkmate, stalemate, castling, en passant, pawn promotion

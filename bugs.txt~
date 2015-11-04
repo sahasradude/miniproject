@@ -1,0 +1,9 @@
+in validmove:
+	queen move not working for white and black
+	rook move not working for black, rook kill not working for white (because of the condition of pieces in middle starting from lower and going till higher)
+	bishop moves not working for black and white (bc1-d2 not working but c1-e3 works?!?)
+	king moves not done
+	knight move not working
+
+
+no check, checkmate, stalemate, castling, en passant, pawn promotion
