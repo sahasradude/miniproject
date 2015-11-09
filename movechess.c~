@@ -1,7 +1,9 @@
 #include "movechess.h"
 #include <math.h>
 // N, R, K, Q, B, a-h, are pieces
-//a1-h8 are moves	  
+//a1-h8 are moves
+static extern coordinates w_kingsq;
+static extern coordinates b_kingsq;
 int validmove(board *b, coordinates s, coordinates d, char player) {
 	//receives the coordinates of the move and tells if it is a valid move
 	//assert: source square has a piece, destination is a valid square 
@@ -127,17 +129,27 @@ en passant: if that particular square is en passant then do it
 				return 0;
 			}
 		}
+		else if(b->sq[s.row][s.column].piece == u_wK) {
+			if (d.row == s.row && d.column == s.column)
+				return 0;
+			if (b->sq[d.row][d.column].info & ATTACKED)
+				return 0;
+			if((abs(s.row - d.row) <= 1) && (abs(s.column - d.column) <= 1)) { 
+				w_kingsq.row = d.row;
+				w_kingsq.column = d.column;
+				return 1;
+			}
+			else 
+				return 0;
+		}
 		else {
 			//wprintf(L"inside else of general white\n");
 			return 0;
 		}
-		//else if(b->sq[d.row][d.column].piece == u_wK) {}
 	}		
 	else if(player == BLACK) {
-		if(b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp) {
-			//wprintf(L"destination piece occupied error!?\n");
+		if(b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp)
 			return 0;
-		}
 		if (b->sq[s.row][s.column].piece == u_bN) {
 			if(((d.row == s.row + 1 || d.row == s.row - 1) && (d.column == s.column + 2 || d.column == s.column - 2)) || ((d.row == s.row + 2 || d.row == s.row - 2) && (d.column == s.column + 1 || d.column == s.column - 1)))
 				return 1;
@@ -240,73 +252,25 @@ en passant: if that particular square is en passant then do it
 				return 0;
 			}
 		}
+		else if(b->sq[s.row][s.column].piece == u_bK) {
+			if (d.row == s.row && d.column == s.column)
+				return 0;
+			if (b->sq[d.row][d.column].info & ATTACKED)
+				return 0;
+			if((abs(s.row - d.row) <= 1) && (abs(s.column - d.column) <= 1)) {
+				b_kingsq.row = d.row;
+				b_kingsq.column = d.column;
+				return 1;
+			}
+			else 
+				return 0;
+		}
 		else {
 			//wprintf(L"inside else of general black\n");
 			return 0;
 		}
-	}	//else if(b->sq[d.row][d.column].piece == u_wK) {}
-}
-
-
-void attacking_squares(board *b, char player){
-	// if player is white, for each white piece, see which squares it can move to.
-	//go in board, store coordinates of each white piece, then pass that as source to a variant of validmove, and pass all other squares as destination. if there is a valid move to that square, then it is an attacking square for that piece. mark it so.
-	int i, j;
-	int p, q;
-	coordinates s,d;
-	for(i = c_8; i <= c_1; i++) //sets all to non-attacked
-		for(j = c_a; j <= c_h; j++)
-			if(b->sq[i][j].info & ATTACKED)
-				b->sq[i][j].info = (b->sq[i][j].info) - ATTACKED;
-
-	if(player == WHITE) {
-		for(i = c_8; i <= c_1; i++)
-			for(j = c_a; j <= c_h; j++) {
-				if(b->sq[i][j].piece >= u_wK &&	b->sq[i][j].piece <= u_wp) {
-					if(b->sq[i][j].piece == u_wp) {
-						b->sq[i - 1][j + 1].info = b->sq[i - 1][j + 1].info | ATTACKED;
-						b->sq[i - 1][j - 1].info = b->sq[i - 1][j - 1].info | ATTACKED;
-						continue;
-					}
-					s.row = i;
-					s.column = j;
-					for(p = c_8; p<= c_1; p++)
-						for(q = c_a; q <= c_h; q++) {
-							d.row = p; 
-							d.column = q;
-							if(validmove(b,s,d,player))
-								b->sq[p][q].info = b->sq[p][q].info | ATTACKED;
-						}
-				}
-			}
-	}
-	if(player == BLACK) {
-		for(i = c_8; i <= c_1; i++)
-			for(j = c_a; j <= c_h; j++) {
-				if(b->sq[i][j].piece >= u_bK &&	b->sq[i][j].piece <= u_bp) {
-					if(b->sq[i][j].piece == u_bp) {
-						b->sq[i + 1][j + 1].info = b->sq[i + 1][j + 1].info | ATTACKED;
-						b->sq[i + 1][j - 1].info = b->sq[i + 1][j - 1].info | ATTACKED;
-						continue;
-					}
-					s.row = i;
-					s.column = j;
-					for(p = c_a; p<= c_h; p++)
-						for(q = c_8; q <= c_1; q++) {
-							d.row = p; 
-							d.column = q;
-							if(validmove(b,s,d,player))
-								b->sq[p][q].info = b->sq[p][q].info | ATTACKED;
-						}
-				}
-			}
 	}
 }
-
-
-int check_checkmate() {
-	//every square an opposition piece is attacking is known, see all king moves, count no of free squares. if zero, and check, then checkmate.
-}	
 
 coordinates selectsquare(board *b, wchar_t *move) { //finds coordinates of given move in terms of 12x12 array
 	int i = 0;

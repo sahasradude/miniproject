@@ -2,17 +2,14 @@
 #include <wchar.h>
 #include <locale.h>
 #include <stdlib.h>
+#include <time.h>
 #include "setup_printchess.h"
 #include "movechess.h"
 #include "stack.h"
 #include "attackchess.h"
-coordinates w_kingsq;
-coordinates b_kingsq;
+coordinates w_kingsq = {.row = c_1, .column = c_e};
+coordinates b_kingsq = {.row = c_8, .column = c_e};
 int main() {
-	w_kingsq.row = c_1;
-	w_kingsq.column = c_e;
-	b_kingsq.row = c_8;
-	b_kingsq.column = c_e;
 	setlocale(LC_ALL, "");
         board b;
 	board prev;
@@ -20,8 +17,39 @@ int main() {
 	init(&st);
         initboard(&b);
         setboard(&b);
+        int i;
 	char state = WHITE;
-        wprintf(L"WELCOME TO CHESS. TO QUIT, PRESS CTRL+D AS MOVE COORDINATES, OR Q or q\nTO UNDO, PRESS U OR u AS MOVE COORDINATES\n");
+	system("clear");
+	for(i = 0; i < 30; i++) {
+		if(i%2 == 0)
+			wprintf(L"%lc ", u_none);
+		else
+			wprintf(L"%lc ", u_none_black);
+	}
+	wprintf(L"\n");
+	wprintf(L"\t\tC\n");
+	sleep(1);
+	wprintf(L"\t\t\tH\n");
+	sleep(1);
+	wprintf(L"\t\t\t\tE\n");
+	sleep(1);
+	wprintf(L"\t\t\t\t\tS\n");
+	sleep(1);
+	wprintf(L"\t\t\t\t\t\tS\n");
+	for(i = 0; i < 30; i++) {
+		if(i%2 == 0)
+			wprintf(L"%lc ", u_none);
+		else
+			wprintf(L"%lc ", u_none_black);
+	}
+	wprintf(L"\n");
+	sleep(3);
+	system("clear");
+        wprintf(L"WELCOME TO CHESS. TO QUIT, PRESS CTRL+D AS MOVE COORDINATES, OR Q or q\n");
+        sleep(3);
+        wprintf(L"TO UNDO, PRESS U OR u AS MOVE COORDINATES\n");
+        sleep(4);
+        system("clear");
 	attacking_squares(&b, state);
         printboard(&b);
 	push(&st, b);
@@ -82,12 +110,13 @@ int main() {
 			wprintf(L"invalid square selected, please try again\n");
 			continue;
 		}
-		undo:
-		attacking_squares(&b, state);
+		attacking_squares(&b, state == BLACK ? WHITE : BLACK);
 		if (check(&b, state)) {
 			wprintf(L"please clear the check\n");
 			continue;
 		}
+		undo:
+		attacking_squares(&b, state);
 		system("clear");
                 printboard(&b);	
 		push(&st, b);
