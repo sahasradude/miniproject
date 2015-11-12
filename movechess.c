@@ -22,6 +22,7 @@ en passant: if that particular square is en passant then do it
 	//if moving that piece causes a check, or if there is currently a check to my king
 	int i, j, rvector, cvector;
 	board btemp;
+	coordinates rookmove_source, rookmove_dest;
 	if(player == WHITE) {
 		if(b->sq[d.row][d.column].piece >= u_wK && b->sq[d.row][d.column].piece <= u_wp) {
 			//wprintf(L"destination piece occupied error!?\n");
@@ -35,6 +36,12 @@ en passant: if that particular square is en passant then do it
 		}
 		else if(b->sq[s.row][s.column].piece == u_wR) {
 			if(d.row == s.row ^ d.column == s.column) {
+				if(s.row == c_1 && s.column == c_a)
+					if(b->sq[c_1][c_c].info & W_CASTLE_SQ)
+						b->sq[c_1][c_c].info = b->sq[c_1][c_c].info - W_CASTLE_SQ;
+				if(s.row == c_1 && s.column == c_h)
+					if(b->sq[c_1][c_g].info & W_CASTLE_SQ)
+						b->sq[c_1][c_g].info = b->sq[c_1][c_g].info - W_CASTLE_SQ;
 				if(d.row == s.row) {
 					for (i = (d.column < s.column ? d.column: s.column) + 1 ; i < (d.column > s.column ? d.column: s.column); i++)
 						if(b->sq[s.row][i].info & OCCUPIED)
@@ -130,11 +137,52 @@ en passant: if that particular square is en passant then do it
 			}
 		}
 		else if(b->sq[s.row][s.column].piece == u_wK) {
+			/*castling not possible if :
+				king has moved
+				rook has moved
+				king under check
+				if square between king and rook is occupied or attacked
+				any square king moves to under attack*/
 			if (d.row == s.row && d.column == s.column)
 				return 0;
 			if (b->sq[d.row][d.column].info & ATTACKED)
 				return 0;
+			if(b->sq[d.row][d.column].info & W_CASTLE_SQ) {
+				if(check(b, player))
+					return 0;
+				//assert: king hasnt moved, rook hasnt moved.(taken care of elsewhere), not under check
+				if(d.row == c_1 && d.column == c_c) {
+					//check squares b1, c1, d1 for empty or occupied
+					for (i = c_b; i <= c_d; i++)
+						if((b->sq[c_1][i].info & OCCUPIED)||(b->sq[c_1][i].info & ATTACKED))
+							return 0;
+					rookmove_source.row = c_1;
+					rookmove_source.column = c_a;
+					rookmove_dest.row = c_1;
+					rookmove_dest.column = c_d;
+					movepiece(b, rookmove_source, rookmove_dest);
+					return 1;
+				}
+				else if(d.row == c_1 && d.column == c_g) {
+					//check f1, g1 
+					for (i = c_f; i <= c_g; i++)
+						if((b->sq[c_1][i].info & OCCUPIED)||(b->sq[c_1][i].info & ATTACKED))
+							return 0;
+					rookmove_source.row = c_1;
+					rookmove_source.column = c_h;
+					rookmove_dest.row = c_1;
+					rookmove_dest.column = c_f;
+					movepiece(b, rookmove_source, rookmove_dest);
+					return 1; 
+				}
+				else
+					return 0;
+			}
 			if((abs(s.row - d.row) <= 1) && (abs(s.column - d.column) <= 1)) { 
+				if(b->sq[c_1][c_g].info & W_CASTLE_SQ)
+					b->sq[c_1][c_g].info = b->sq[c_1][c_g].info - W_CASTLE_SQ; //if king moves, castle bit disabled
+				if(b->sq[c_1][c_c].info & W_CASTLE_SQ)
+					b->sq[c_1][c_c].info = b->sq[c_1][c_c].info - W_CASTLE_SQ;
 				btemp = *b;
 				movepiece(&btemp, s, d);
 				if(check(&btemp, player))

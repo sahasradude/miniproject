@@ -50,7 +50,7 @@ int main() {
 			wprintf(L"%lc ", u_none_black);
 	}
 	wprintf(L"\n\n\n\n");
-	sleep(3);
+	sleep(2);
         wprintf(L"WELCOME TO CHESS. TO QUIT, PRESS CTRL+D AS MOVE COORDINATES, OR Q or q\n");
         sleep(3);
         wprintf(L"TO UNDO, PRESS U OR u AS MOVE COORDINATES\n");

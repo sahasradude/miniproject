@@ -5,6 +5,7 @@ void attacking_squares(board *b, char player){
 	int i, j;
 	int p, q;
 	coordinates s,d;
+	board temp = *b;
 	for(i = c_8; i <= c_1; i++) //sets all to non-attacked
 		for(j = c_a; j <= c_h; j++)
 			if(b->sq[i][j].info & ATTACKED)
@@ -25,7 +26,7 @@ void attacking_squares(board *b, char player){
 						for(q = c_a; q <= c_h; q++) {
 							d.row = p; 
 							d.column = q;
-							if(validmove(b,s,d,player))
+							if(validmove(&temp,s,d,player))
 								b->sq[p][q].info = b->sq[p][q].info | ATTACKED;
 						}
 				}

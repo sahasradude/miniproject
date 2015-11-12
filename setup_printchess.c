@@ -65,10 +65,11 @@ void setboard (board *b) {
 			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED;
 		}
 		i++;
-
-
-
 	}
+	b->sq[c_1][c_c].info = b->sq[c_1][c_c].info | W_CASTLE_SQ;
+	b->sq[c_1][c_g].info = b->sq[c_1][c_g].info | W_CASTLE_SQ;
+	b->sq[c_8][c_c].info = b->sq[c_8][c_c].info | B_CASTLE_SQ;
+	b->sq[c_8][c_g].info = b->sq[c_8][c_g].info | B_CASTLE_SQ;
 }
 void printboard(board *b) {
 	int i, j;

@@ -8,8 +8,8 @@ enum {c_8 = 2,c_7,c_6,c_5,c_4,c_3,c_2,c_1};
 #define OFFBOARD 0
 #define ONBOARD 1
 #define OCCUPIED 2
-#define CASTLE_SQ 4
-#define EN_PASSANT 8
+#define W_CASTLE_SQ 4
+#define B_CASTLE_SQ 8
 #define ATTACKED 16
 #define WHITE 1
 #define BLACK 2
