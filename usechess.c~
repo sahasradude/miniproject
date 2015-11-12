@@ -11,6 +11,7 @@ coordinates w_kingsq = {.row = c_1, .column = c_e};
 coordinates b_kingsq = {.row = c_8, .column = c_e};
 int main() {
 	setlocale(LC_ALL, "");
+	//initialisations
         board b;
 	board prev;
 	stack st;
@@ -19,39 +20,43 @@ int main() {
         setboard(&b);
         int i;
 	char state = WHITE;
-	system("clear");
-	for(i = 0; i < 30; i++) {
+	//end of initialisations
+	//intro
+	system("reset");
+	for(i = 0; i < 40; i++) {
 		if(i%2 == 0)
 			wprintf(L"%lc ", u_none);
 		else
 			wprintf(L"%lc ", u_none_black);
-		usleep(10000);
 	}
 	wprintf(L"\n");
 	wprintf(L"\t\tC\n");
+	wprintf(L"\n");
 	sleep(1);
 	wprintf(L"\t\t\tH\n");
+	wprintf(L"\n");
 	sleep(1);
 	wprintf(L"\t\t\t\tE\n");
+	wprintf(L"\n");
 	sleep(1);
 	wprintf(L"\t\t\t\t\tS\n");
+	wprintf(L"\n");
 	sleep(1);
 	wprintf(L"\t\t\t\t\t\tS\n");
-	for(i = 0; i < 30; i++) {
+	for(i = 0; i < 40; i++) {
 		if(i%2 == 0)
 			wprintf(L"%lc ", u_none);
 		else
 			wprintf(L"%lc ", u_none_black);
-		usleep(10000);
 	}
-	wprintf(L"\n");
+	wprintf(L"\n\n\n\n");
 	sleep(3);
-	system("clear");
         wprintf(L"WELCOME TO CHESS. TO QUIT, PRESS CTRL+D AS MOVE COORDINATES, OR Q or q\n");
         sleep(3);
         wprintf(L"TO UNDO, PRESS U OR u AS MOVE COORDINATES\n");
         sleep(4);
         system("clear");
+        //end of intro sequence
 	attacking_squares(&b, state);
         printboard(&b);
 	push(&st, b);
@@ -128,6 +133,10 @@ int main() {
 		else
 			wprintf(L"BLACK TO PLAY\n");
         }
+        system("reset");
+        wprintf(L"\n\n\n\n\n\n\n\t\t\t\t\tTHANK YOU FOR PLAYING!\n");
+        sleep(5);
+        system("reset");
 	return 0;
 }
 

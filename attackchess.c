@@ -1,14 +1,10 @@
 #include "attackchess.h"
-extern coordinates w_kingsq;
-extern coordinates b_kingsq;
 void attacking_squares(board *b, char player){
 	// if player is white, for each white piece, see which squares it can move to.
 	//go in board, store coordinates of each white piece, then pass that as source to a variant of validmove, and pass all other squares as destination. if there is a valid move to that square, then it is an attacking square for that piece. mark it so.
 	int i, j;
 	int p, q;
 	coordinates s,d;
-	wprintf(L"WHITE KING: %d %d\n",w_kingsq.row, w_kingsq.column); 
-	wprintf(L"BLACK KING: %d %d\n",b_kingsq.row, b_kingsq.column); 
 	for(i = c_8; i <= c_1; i++) //sets all to non-attacked
 		for(j = c_a; j <= c_h; j++)
 			if(b->sq[i][j].info & ATTACKED)
@@ -57,12 +53,34 @@ void attacking_squares(board *b, char player){
 			}
 	}
 }
-
+coordinates kingfind(board *b, char player) {
+	int i, j;
+	coordinates kingsq;
+	if(player == WHITE) {
+	for (i = c_8; i <= c_1; i++)
+		for(j = c_a; j <= c_h; j++)
+			if (b->sq[i][j].piece == u_wK) {
+				kingsq.row = i;
+				kingsq.column = j;
+				return kingsq;
+			}
+	}
+	else if(player == BLACK) {
+	for (i = c_8; i <= c_1; i++)
+		for(j = c_a; j <= c_h; j++)
+			if (b->sq[i][j].piece == u_bK) {
+				kingsq.row = i;
+				kingsq.column = j;
+				return kingsq;
+			}
+	}
+}
+				
 
 int check(board *b, char player) {
-	if (player == WHITE)
-		return (b->sq[w_kingsq.row][w_kingsq.column].info & ATTACKED);
-	else if (player == BLACK)
-		return (b->sq[b_kingsq.row][b_kingsq.column].info & ATTACKED);
+	coordinates kingsq;
+	kingsq = kingfind(b, player);
+	//wprintf(L"KING SQUARE = %d %d\n", kingsq.row, kingsq.column);
+	return (b->sq[kingsq.row][kingsq.column].info & ATTACKED);
 }	
 

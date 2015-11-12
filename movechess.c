@@ -1,9 +1,8 @@
 #include "movechess.h"
+#include "attackchess.h"
 #include <math.h>
 // N, R, K, Q, B, a-h, are pieces
 //a1-h8 are moves
-extern coordinates w_kingsq;
-extern coordinates b_kingsq;
 int validmove(board *b, coordinates s, coordinates d, char player) {
 	//receives the coordinates of the move and tells if it is a valid move
 	//assert: source square has a piece, destination is a valid square 
@@ -22,6 +21,7 @@ en passant: if that particular square is en passant then do it
 	//if that square is under attack then king can't move there
 	//if moving that piece causes a check, or if there is currently a check to my king
 	int i, j, rvector, cvector;
+	board btemp;
 	if(player == WHITE) {
 		if(b->sq[d.row][d.column].piece >= u_wK && b->sq[d.row][d.column].piece <= u_wp) {
 			//wprintf(L"destination piece occupied error!?\n");
@@ -135,8 +135,10 @@ en passant: if that particular square is en passant then do it
 			if (b->sq[d.row][d.column].info & ATTACKED)
 				return 0;
 			if((abs(s.row - d.row) <= 1) && (abs(s.column - d.column) <= 1)) { 
-				w_kingsq.row = d.row;
-				w_kingsq.column = d.column;
+				btemp = *b;
+				movepiece(&btemp, s, d);
+				if(check(&btemp, player))
+					return 0;
 				return 1;
 			}
 			else 
@@ -258,8 +260,10 @@ en passant: if that particular square is en passant then do it
 			if (b->sq[d.row][d.column].info & ATTACKED)
 				return 0;
 			if((abs(s.row - d.row) <= 1) && (abs(s.column - d.column) <= 1)) {
-				b_kingsq.row = d.row;
-				b_kingsq.column = d.column;
+				btemp = *b;
+				movepiece(&btemp, s, d);
+				if(check(&btemp, player))
+					return 0;
 				return 1;
 			}
 			else 

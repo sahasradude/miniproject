@@ -27,6 +27,9 @@ enum {c_8 = 2,c_7,c_6,c_5,c_4,c_3,c_2,c_1};
 #define u_bK L'\x265A'
 #define u_none L'\x25A1'
 #define u_none_black L'\x25A0'
+typedef struct coordinates {
+        int row, column;
+}coordinates;
 typedef struct square {
 	char info;
 	wchar_t piece;

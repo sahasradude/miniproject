@@ -7,7 +7,8 @@ void initboard (board *b) {
 			if ((i >=c_a && i <= c_h) && (j >= c_8 && j <= c_1)) 
 				b->sq[i][j].info = ONBOARD;
 			else 
-				b->sq[i][j].info = OFFBOARD;
+				b->sq[i][j].info = OFFBOARD;//these squares are here to prevent segfault when an onboard piece like eg knight 
+							    //are being checked for valid move squares. having some buffer around board makes							    	    //things easier
 		}
 	}
 }
@@ -22,46 +23,46 @@ void setboard (board *b) {
 	i = c_a;
 	while(i<=c_h) { // sets white pawns;
 		b->sq[c_2][i].piece = u_wp;
-		b->sq[c_2][i].info = (b->sq[c_2][i].info) | OCCUPIED; // sets sq to occupied
+		b->sq[c_2][i].info = (b->sq[c_2][i].info) | OCCUPIED;  
 		i++;
 	}
 	i = c_a;
 	while(i<=c_h) { // sets black pawns;
 		b->sq[c_7][i].piece = u_bp;
-		b->sq[c_7][i].info = (b->sq[c_7][i].info) | OCCUPIED; // sets sq to occupied
+		b->sq[c_7][i].info = (b->sq[c_7][i].info) | OCCUPIED;  
 		i++;
 	}
 	i = c_a;
 	while(i <= c_h) {//sets both rooks
 		if(i == c_a || i == c_h) {
 			b->sq[c_1][i].piece = u_wR;
-			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED;  
 			b->sq[c_8][i].piece = u_bR;
-			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED;  
 		}
 		if(i == c_b || i == c_g) { //sets both knights
 			b->sq[c_1][i].piece = u_wN;
-			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED;  
 			b->sq[c_8][i].piece = u_bN;
-			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED;  
 		}
 		if(i == c_c || i == c_f) { //sets both bishops
 			b->sq[c_1][i].piece = u_wB;
-			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED;  
 			b->sq[c_8][i].piece = u_bB;
-			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED;  
 		}
 		if(i == c_d) { //sets both queens
 			b->sq[c_1][i].piece = u_wQ;
-			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED;  
 			b->sq[c_8][i].piece = u_bQ;
-			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED;  
 		}
 		if(i == c_e) { //sets both kings
 			b->sq[c_1][i].piece = u_wK;
-			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_1][i].info = (b->sq[c_1][i].info) | OCCUPIED;  
 			b->sq[c_8][i].piece = u_bK;
-			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED; // sets sq to occupied
+			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED;
 		}
 		i++;
 
@@ -102,9 +103,6 @@ void printboard(board *b) {
 		}
 		for (j = 0; j < 12; j++) {
 			if (b->sq[i][j].info & ONBOARD) {
-				if(b->sq[i][j].info & ATTACKED && !(b->sq[i][j].info & OCCUPIED))
-					wprintf(L" %lc ", u_none_black);
-				else
 					wprintf(L" %lc ", b->sq[i][j].piece);
 			}
 			else 
