@@ -47,7 +47,7 @@ void attacking_squares(board *b, char player){
 						for(q = c_8; q <= c_1; q++) {
 							d.row = p; 
 							d.column = q;
-							if(validmove(b,s,d,player))
+							if(validmove(&temp,s,d,player))
 								b->sq[p][q].info = b->sq[p][q].info | ATTACKED;
 						}
 				}
@@ -84,4 +84,40 @@ int check(board *b, char player) {
 	//wprintf(L"KING SQUARE = %d %d\n", kingsq.row, kingsq.column);
 	return (b->sq[kingsq.row][kingsq.column].info & ATTACKED);
 }	
+int checkmate(board *b, char player) {
+	board btemp = *b;
+	coordinates s, d;
+	int i, j, p, q;
+	if(!check(&btemp, player))
+		return 0;
+	/*there is a check. to see whether it is a checkmate, make every single possible valid move. if one particular valid move stops the 
+	check, it is not a checkmate. if no such move exists, it is a checkmate.*/
+	for(i = c_8; i <= c_1; i++)
+		for(j = c_a; j <= c_h; j++)
+			for(p = c_8; p <= c_1; p++)
+				for(q = c_a; q <= c_h; q++) {
+					s.row = i;
+					s.column = j;
+					d.row = p;
+					d.column = q;
+					if(validmove(&btemp, s, d, player)) {
+						movepiece(&btemp, s, d); //move piece and update all attacked squares
+						attacking_squares(&btemp, player == WHITE ? BLACK : WHITE);
+						if(!check(&btemp, player)) {
+							/*wprintf(L"this is btemp:\n");
+							printboard(&btemp);*/
+							return 0;
+						}
+					}
+					btemp = *b;
+				}
+	return 1;
+}
 
+
+
+
+
+
+
+	

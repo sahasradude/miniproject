@@ -65,13 +65,14 @@ void setboard (board *b) {
 			b->sq[c_8][i].info = (b->sq[c_8][i].info) | OCCUPIED;
 		}
 		i++;
-	}
+	} 
+	//sets the castle bits for white and black. if these bits are enabled, castling can be done on the specified square
 	b->sq[c_1][c_c].info = b->sq[c_1][c_c].info | W_CASTLE_SQ;
 	b->sq[c_1][c_g].info = b->sq[c_1][c_g].info | W_CASTLE_SQ;
 	b->sq[c_8][c_c].info = b->sq[c_8][c_c].info | B_CASTLE_SQ;
 	b->sq[c_8][c_g].info = b->sq[c_8][c_g].info | B_CASTLE_SQ;
 }
-void printboard(board *b) {
+void printboard(board *b) { //prints the board
 	int i, j;
 	for (i = 0; i < 12; i++) {
 		switch (i) {
