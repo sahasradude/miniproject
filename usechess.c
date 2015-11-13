@@ -39,10 +39,11 @@ void intro() {
 	}
 	wprintf(L"\n\n\n\n");
 	sleep(2);
-	wprintf(L"WELCOME TO CHESS. TO QUIT, PRESS CTRL+D AS MOVE COORDINATES, OR Q or q\n");
-	sleep(3);
-	wprintf(L"TO UNDO, PRESS U OR u AS MOVE COORDINATES\n");
-	sleep(4);
+	wprintf(L"WELCOME TO CHESS.\n");
+	wprintf(L"TO QUIT, PRESS CTRL+D AS MOVE COORDINATES, OR Q or q\n");
+	wprintf(L"TO UNDO, PRESS U OR u AS MOVE COORDINATES\n"); 
+	wprintf(L"TO SAVE THE GIVEN BOARD TO A FILE, ENTER S or s AS MOVE COORDINATES\n");
+	sleep(8);
 	system("clear");
 	system("setterm -cursor on");
 }
@@ -65,18 +66,39 @@ int main() {
 	init(&st);
 	initboard(&b);
 	setboard(&b);
+	int prom;
 	int i;
 	int set = 0;
 	char state = WHITE;
 	coordinates s, d;
 	int mv;
+	int select;
+	char filename[32];
 	wchar_t source[16], dest[16];
 	//end of initialisations
 	intro(); //intro sequence
+	wprintf(L"1. PRESS 1 FOR NEW GAME\n2. PRESS 2 TO LOAD GAME\n3. PRESS 3 FOR CREDITS\n4. PRESS 4 TO EXIT\n");
+	wscanf(L"%d", &select);
+	switch(select) {
+		case 1:
+			break;
+		case 2:
+			wprintf(L"enter filename:\n");
+			wscanf(L"%s", filename);
+			state = readfromfile(&b, filename);
+			break;
+		case 3:
+			exit(1);
+		case 4:
+			exit(1);
+		default:
+			wprintf(L"invalid choice\n");
+	}
+	system("reset");	
 	attacking_squares(&b, state);
 	printboard(&b);
 	push(&st, b);
-	wprintf(L"WHITE TO PLAY\n");
+	state == WHITE ? wprintf(L"WHITE TO PLAY\n") : wprintf(L"BLACK TO PLAY\n");
 	while(1) {
 		if(check(&b, state)) {
 			if(checkmate(&b, state)){
@@ -86,6 +108,10 @@ int main() {
 				break;
 			}
 			wprintf(L"CHECK!\n");
+		}
+		if(stalemate(&b, state)) {
+			wprintf(L"STALEMATE! NO ONE WINS!\n");
+			break;
 		}
 		wprintf(L"enter coordinates of piece to move:\n");
 		if(wscanf(L"%ls", source) == -1)
@@ -104,6 +130,12 @@ int main() {
 				continue;
 			}
 			goto undo;
+		}
+		if(source[0] == L's'|| source[0] == L'S') {
+			wprintf(L"enter filename\n");
+			wscanf(L"%s", filename);
+			savetofile(&b, state, filename);
+			continue;
 		}
 		s = selectsquare(&b, source); //converts string to coordinates
 		wprintf(L"enter coordinates of location to move to:\n");
@@ -124,6 +156,12 @@ int main() {
 			}
 			goto undo;
 		}	 
+		if(dest[0] == L's'|| dest[0] == L'S') {
+			wprintf(L"enter filename\n");
+			wscanf(L"%s", filename);
+			savetofile(&b, state, filename);
+			continue;
+		}
 		d = selectsquare(&b, dest); //converts string dest into coordinates
 		if(s.row != -1 && s.column != -1 && d.row != -1 && d.column != -1) {
 			mv = validmove(&b, s, d, state); //checks if player is making a valid move acc. to rules of chess
@@ -135,6 +173,14 @@ int main() {
 			if (!mv) {
 				wprintf(L"this is not a valid move, please try again\n");
 				continue;
+			}
+			if(b.sq[d.row][d.column].piece == u_wp && d.row == c_8) { //for simplicity sake only promotion to queen is allowed. 
+				wprintf(L"pawn promotion\n");
+				b.sq[d.row][d.column].piece = u_wQ;
+			}
+			if(b.sq[d.row][d.column].piece == u_bp && d.row == c_1) {
+				wprintf(L"pawn promotion\n");
+				b.sq[d.row][d.column].piece = u_bQ;
 			}
 		}
 		else	{

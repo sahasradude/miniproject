@@ -40,4 +40,6 @@ typedef struct board {
 void initboard (board *b); //sets all squares to offboard or onboard, piece to none
 void setboard (board *b); //sets up board in starting position
 void printboard(board *b); //prints board
+void savetofile(board *b, char player, char *filename);
+char readfromfile(board *b, char *filename);
 #endif

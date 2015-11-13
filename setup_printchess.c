@@ -114,3 +114,42 @@ void printboard(board *b) { //prints the board
 	}
 	wprintf(L"        a  b  c  d  e  f  g  h\n");
 }
+/*saves the board to a file
+board will be stored in the following way: 
+	first the player,
+	then piece in a1, then info of a1 square,
+	then piece in a2, then info of a2 square, 
+	...and so on for all 64 squares, each on a new line.
+*/
+void savetofile(board *b, char player, char *filename) {
+	int i, j;
+	FILE *fp = fopen(filename, "w+");
+	fwprintf(fp, L"%d",player);
+	for(i = c_8; i <= c_1; i++)
+		for(j = c_a; j <= c_h; j++) 
+			fwprintf(fp, L"%lc%d",b->sq[i][j].piece, b->sq[i][j].info);
+	fclose(fp);
+}
+//readfromfile modifies the given board to make it like board stored in file, and returns a char indicating the player to play
+char readfromfile(board *b, char *filename) {
+	int i, j;
+	FILE *fp = fopen(filename, "r+");
+	char player;
+	fwscanf(fp, L"%d", &player);
+	for(i = c_8; i <= c_1; i++)
+		for(j = c_a; j <= c_h; j++) 
+			fwscanf(fp, L"%lc%d",&b->sq[i][j].piece, &b->sq[i][j].info);
+	fclose(fp);
+	return player;
+}
+
+
+
+
+
+
+
+
+
+
+	

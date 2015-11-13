@@ -16,6 +16,8 @@ void attacking_squares(board *b, char player){
 			for(j = c_a; j <= c_h; j++) {
 				if(b->sq[i][j].piece >= u_wK &&	b->sq[i][j].piece <= u_wp) {
 					if(b->sq[i][j].piece == u_wp) {
+						/*pawns move differently to how they attack. so we cannot use the validmove function here
+						as we do below*/
 						b->sq[i - 1][j + 1].info = b->sq[i - 1][j + 1].info | ATTACKED;
 						b->sq[i - 1][j - 1].info = b->sq[i - 1][j - 1].info | ATTACKED;
 						continue;
@@ -26,6 +28,9 @@ void attacking_squares(board *b, char player){
 						for(q = c_a; q <= c_h; q++) {
 							d.row = p; 
 							d.column = q;
+							/*if there is a valid move from one square to destination, 
+							then that piece can attack the destination square for all 
+							pieces other than pawn*/
 							if(validmove(&temp,s,d,player))
 								b->sq[p][q].info = b->sq[p][q].info | ATTACKED;
 						}
@@ -37,6 +42,8 @@ void attacking_squares(board *b, char player){
 			for(j = c_a; j <= c_h; j++) {
 				if(b->sq[i][j].piece >= u_bK &&	b->sq[i][j].piece <= u_bp) {
 					if(b->sq[i][j].piece == u_bp) {
+						/*pawns move differently to how they attack. so we cannot use the validmove function here
+						as we do below*/
 						b->sq[i + 1][j + 1].info = b->sq[i + 1][j + 1].info | ATTACKED;
 						b->sq[i + 1][j - 1].info = b->sq[i + 1][j - 1].info | ATTACKED;
 						continue;
@@ -47,6 +54,9 @@ void attacking_squares(board *b, char player){
 						for(q = c_8; q <= c_1; q++) {
 							d.row = p; 
 							d.column = q;
+							/*if there is a valid move from one square to destination, 
+							then that piece can attack the destination square for all 
+							pieces other than pawn*/
 							if(validmove(&temp,s,d,player))
 								b->sq[p][q].info = b->sq[p][q].info | ATTACKED;
 						}
@@ -54,7 +64,7 @@ void attacking_squares(board *b, char player){
 			}
 	}
 }
-coordinates kingfind(board *b, char player) {
+coordinates kingfind(board *b, char player) { //locates the square on which the king is 
 	int i, j;
 	coordinates kingsq;
 	if(player == WHITE) {
@@ -79,8 +89,9 @@ coordinates kingfind(board *b, char player) {
 				
 
 int check(board *b, char player) {
+	//finds the king and then checks if his square is attacked by an enemy piece. if yes, then it is a check.
 	coordinates kingsq;
-	kingsq = kingfind(b, player);
+	kingsq = kingfind(b, player); 
 	//wprintf(L"KING SQUARE = %d %d\n", kingsq.row, kingsq.column);
 	return (b->sq[kingsq.row][kingsq.column].info & ATTACKED);
 }	
@@ -113,8 +124,23 @@ int checkmate(board *b, char player) {
 				}
 	return 1;
 }
-
-
+int stalemate (board *b, char player) {
+	board btemp = *b;
+	int i, j, p, q;
+	coordinates s, d;
+	for(i = c_8; i <= c_1; i++)
+		for(j = c_a; j <= c_h; j++)
+			for(p = c_8; p <= c_1; p++)
+				for(q = c_a; q <= c_h; q++) {
+					s.row = i;
+					s.column = j;
+					d.row = p;
+					d.column = q;
+					if(validmove(&btemp, s, d, player))
+						return 0;
+				}
+	return 1;
+}
 
 
 
