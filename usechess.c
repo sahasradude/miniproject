@@ -38,11 +38,12 @@ void intro() {
 			wprintf(L"%lc ", u_none_black);
 	}
 	wprintf(L"\n\n\n\n");
-	sleep(2);
+	sleep(1);
 	wprintf(L"WELCOME TO CHESS.\n");
-	wprintf(L"TO QUIT, PRESS CTRL+D AS MOVE COORDINATES, OR Q or q\n");
-	wprintf(L"TO UNDO, PRESS U OR u AS MOVE COORDINATES\n"); 
-	wprintf(L"TO SAVE THE GIVEN BOARD TO A FILE, ENTER S or s AS MOVE COORDINATES\n");
+	wprintf(L"-TO QUIT, PRESS CTRL+D AS MOVE COORDINATES, OR Q or q\n");
+	wprintf(L"-TO UNDO, PRESS U OR u AS MOVE COORDINATES\n"); 
+	wprintf(L"-TO SAVE THE GIVEN BOARD TO A FILE, ENTER S or s AS MOVE COORDINATES\n");
+	wprintf(L"(note: it is recommended that your terminal colour scheme is black and white)\n");
 	sleep(8);
 	system("clear");
 	system("setterm -cursor on");
@@ -88,14 +89,17 @@ int main() {
 			state = readfromfile(&b, filename);
 			break;
 		case 3:
+			wprintf(L"CREATED BY DHRUVA SAHASRABUDHE, 111408051: IT-S3\n");
 			exit(1);
 		case 4:
 			exit(1);
 		default:
 			wprintf(L"invalid choice\n");
+			sleep(2);
+			break;
 	}
-	system("reset");	
-	attacking_squares(&b, state);
+	system("reset");
+	attacking_squares(&b, state == BLACK ? WHITE : BLACK);
 	printboard(&b);
 	push(&st, b);
 	state == WHITE ? wprintf(L"WHITE TO PLAY\n") : wprintf(L"BLACK TO PLAY\n");
@@ -111,6 +115,7 @@ int main() {
 		}
 		if(stalemate(&b, state)) {
 			wprintf(L"STALEMATE! NO ONE WINS!\n");
+			sleep(5);
 			break;
 		}
 		wprintf(L"enter coordinates of piece to move:\n");

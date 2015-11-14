@@ -1,7 +1,7 @@
 #include "movechess.h"
 #include "attackchess.h"
 #include <math.h>
-// N, R, K, Q, B, a-h, are pieces
+// N, R, K, Q, B, are pieces
 //a1-h8 are moves
 int validmove(board *b, coordinates s, coordinates d, char player) {
 	//receives the coordinates of the move and tells if it is a valid move

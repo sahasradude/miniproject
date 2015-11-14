@@ -91,7 +91,8 @@ coordinates kingfind(board *b, char player) { //locates the square on which the 
 int check(board *b, char player) {
 	//finds the king and then checks if his square is attacked by an enemy piece. if yes, then it is a check.
 	coordinates kingsq;
-	kingsq = kingfind(b, player); 
+	board btemp = *b;
+	kingsq = kingfind(b, player);
 	//wprintf(L"KING SQUARE = %d %d\n", kingsq.row, kingsq.column);
 	return (b->sq[kingsq.row][kingsq.column].info & ATTACKED);
 }	
@@ -126,8 +127,10 @@ int checkmate(board *b, char player) {
 }
 int stalemate (board *b, char player) {
 	board btemp = *b;
+	board btemp2;
 	int i, j, p, q;
 	coordinates s, d;
+	//see all possible moves, for player, see all valid moves 
 	for(i = c_8; i <= c_1; i++)
 		for(j = c_a; j <= c_h; j++)
 			for(p = c_8; p <= c_1; p++)
@@ -136,10 +139,17 @@ int stalemate (board *b, char player) {
 					s.column = j;
 					d.row = p;
 					d.column = q;
-					if(validmove(&btemp, s, d, player))
-						return 0;
+					/*if there exists at least one legally valid move, 
+					and if that valid move doesnt lead to a check, then it is a stalemate*/
+					if(validmove(&btemp, s, d, player)) {
+						btemp2 = btemp; 
+						movepiece(&btemp2, s, d); //move piece and update all attacked squares
+						attacking_squares(&btemp2, player == WHITE ? BLACK : WHITE);
+						if(!check(&btemp2, player))
+							return 0;
+					}
 				}
-	return 1;
+	return 1; //1 will only be returned if there are no such valid moves for the player
 }
 
 
