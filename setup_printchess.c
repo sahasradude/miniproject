@@ -134,6 +134,8 @@ void savetofile(board *b, char player, char *filename) {
 char readfromfile(board *b, char *filename) {
 	int i, j;
 	FILE *fp = fopen(filename, "r+");
+	if (fp == NULL)
+		return -1;
 	char player;
 	fwscanf(fp, L"%d", &player);
 	for(i = c_8; i <= c_1; i++)

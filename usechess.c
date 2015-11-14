@@ -87,6 +87,10 @@ int main() {
 			wprintf(L"enter filename:\n");
 			wscanf(L"%s", filename);
 			state = readfromfile(&b, filename);
+			if (state == -1) {
+				wprintf(L"no such file exists, please check name.\n");
+				exit(1);
+			}
 			break;
 		case 3:
 			wprintf(L"CREATED BY DHRUVA SAHASRABUDHE, 111408051: IT-S3\n");

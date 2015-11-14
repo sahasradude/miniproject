@@ -1,4 +1,5 @@
 #include "attackchess.h"
+//sees all the squares which all pieces of a particular player can attack
 void attacking_squares(board *b, char player){
 	// if player is white, for each white piece, see which squares it can move to.
 	//go in board, store coordinates of each white piece, then pass that as source to a variant of validmove, and pass all other squares as destination. if there is a valid move to that square, then it is an attacking square for that piece. mark it so.
