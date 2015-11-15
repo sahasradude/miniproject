@@ -1,24 +1,43 @@
+/* This file is part of project.
+
+    project is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    project is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with project.  If not, see <http://www.gnu.org/licenses/>.*/
+
 #include "movechess.h"
 #include "attackchess.h"
-#include <math.h>
+#include <stdlib.h>
 // N, R, K, Q, B, are pieces
 //a1-h8 are moves
 int validmove(board *b, coordinates s, coordinates d, char player) {
 	//receives the coordinates of the move and tells if it is a valid move
 	//assert: source square has a piece, destination is a valid square 
-	/*ways of moving: knight: i+-2, j+-1, i+-1, j+-2
-rook: i is constant or j is constant
-bishop: i++ and j-- ,i-- and j++, i-- and j--, i++ and j++;
-queen: combination of rook and bishop
-king: i-1 to i+1, and j - 1 to j+1 
-pawn: j++ or if killing opportunity, then j++ i++ ot j++ i--, if first move then double move okay;
-ie if pawn is on a-2 to h-2 for white
+	/*ways of moving: 
+		knight: row+-2 and column+-1, OR  row+-1, column+-2 (single move, no loop)
+		rook: row is constant or column is constant (the other increases in loop)
+		bishop: row++ and column-- OR row-- and column++ OR row-- and column--, row++ and column++; (in loop)
+		queen: combination of rook and bishop
+		king: row-1 to row+1, and column-1 to column+1, not including square itself 
+		pawn: row++ OR if killing opportunity, then row++ column++ or row++ column-- (for white), if first move then double move okay;
+			ie if pawn is on a-2 to h-2 for white or a-7 to h-7 for black
+			(pawn promotion taken care of in usechess)
 
-castling: if that particular castling square is enabled then do it
+		castling: if that particular castling square is enabled then do it (see partculars in castling section in king move)
 	 */ 
 	//if a piece is in the way then that move cannot be made except for knight
 	//if that square is under attack then king can't move there
-	//if moving that piece causes a check, or if there is currently a check to my king
+	//if moving that piece causes a check, or if there is currently a check to king then move is invalid
+	//cannot kill my own piece
+	//source and destination cannot be the same
 	int i, j, rvector, cvector;
 	board btemp;
 	coordinates rookmove_source, rookmove_dest;
@@ -26,14 +45,14 @@ castling: if that particular castling square is enabled then do it
 		if(b->sq[d.row][d.column].piece >= u_wK && b->sq[d.row][d.column].piece <= u_wp) {
 			return 0;
 		}
-		if (b->sq[s.row][s.column].piece == u_wN) {
+		if (b->sq[s.row][s.column].piece == u_wN) { // if piece is white knight, see valid move
 			if(((d.row == s.row + 1 || d.row == s.row - 1) && (d.column == s.column + 2 || d.column == s.column - 2)) || ((d.row == s.row + 2 || d.row == s.row - 2) && (d.column == s.column + 1 || d.column == s.column - 1)))
 				return 1;
 			else
 				return 0;
 		}
-		else if(b->sq[s.row][s.column].piece == u_wR) {
-			if(d.row == s.row ^ d.column == s.column) {
+		else if(b->sq[s.row][s.column].piece == u_wR) {//for a white rook see valid moves
+			if((d.row == s.row) ^ (d.column == s.column)) { //xor so source and dest cant be the same
 				if(s.row == c_1 && s.column == c_a)
 					if(b->sq[c_1][c_c].info & W_CASTLE_SQ) //castling not allowed after that particular rook moves. 
 						b->sq[c_1][c_c].info = b->sq[c_1][c_c].info - W_CASTLE_SQ;
@@ -47,7 +66,7 @@ castling: if that particular castling square is enabled then do it
 				}
 				else if(d.column == s.column) {
 					for(i = (d.row < s.row ? d.row: s.row)+1; i < (d.row > s.row ? d.row: s.row); i++)
-						if(b->sq[i][s.column].info & OCCUPIED)
+						if(b->sq[i][s.column].info & OCCUPIED) //if any piece in the way, not valid move
 							return 0;
 				}
 				return 1;
@@ -58,13 +77,14 @@ castling: if that particular castling square is enabled then do it
 		else if(b->sq[s.row][s.column].piece == u_wB) {
 			if (d.row == s.row && d.column == s.column)
 				return 0;
-			if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) {
-				rvector = (d.row - s.row) / abs(d.row - s.row); 
+			if ((d.row - s.row == d.column - s.column) ||  (d.row - s.row == -(d.column - s.column))) { 
+				//rvector and c vector determines which of the four directions NE, NW, SE, SW i want to increment the loop in
+				rvector = (d.row - s.row) / abs(d.row - s.row);
 				cvector = (d.column - s.column) / abs(d.row - s.row);
 				i = s.row + rvector;
 				j = s.column + cvector;
 				while(i != d.row) {
-					if(b->sq[i][j].info & OCCUPIED)
+					if(b->sq[i][j].info & OCCUPIED) //if any piece in the way, not valid move
 						return 0;
 					i = i + rvector;
 					j = j + cvector;
@@ -75,13 +95,13 @@ castling: if that particular castling square is enabled then do it
 				return 0;
 		}
 		else if(b->sq[s.row][s.column].piece == u_wp) {
-			if(s.row == c_2) {
+			if(s.row == c_2) { //in this case pawn can even move two moves ahead
 				if (((d.row == s.row - 1) && (d.column == s.column)) || ((d.row == s.row - 2) && (d.column == s.column))){ 
 					if(b->sq[d.row][d.column].info & OCCUPIED)
 						return 0; 
 					return 1;
 				}
-				else if((d.row == s.row - 1 && (d.column == s.column + 1 || d.column == s.column - 1)) && (b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp))
+				else if((d.row == s.row - 1 && (d.column == s.column + 1 || d.column == s.column - 1)) && (b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp)) //if diagonal square is occupied by enemy, I can kill it. 
 					return 1;
 				else
 					return 0;
@@ -98,7 +118,7 @@ castling: if that particular castling square is enabled then do it
 					return 0;
 			}
 		}
-		else if(b->sq[s.row][s.column].piece == u_wQ) {
+		else if(b->sq[s.row][s.column].piece == u_wQ) { //basically just a combination of rook and bishop
 			if(d.row == s.row && d.column == s.column)
 				return 0;
 			if (d.row == s.row || d.column == s.column) {
@@ -143,7 +163,7 @@ castling: if that particular castling square is enabled then do it
 				return 0;
 			if (b->sq[d.row][d.column].info & ATTACKED)
 				return 0;
-			if(b->sq[d.row][d.column].info & W_CASTLE_SQ) {
+			if(b->sq[d.row][d.column].info & W_CASTLE_SQ) { //if white wants to castle
 				if(check(b, player))
 					return 0;
 				//assert: king hasnt moved, rook hasnt moved.(taken care of elsewhere), not under check
@@ -156,7 +176,7 @@ castling: if that particular castling square is enabled then do it
 					rookmove_source.column = c_a;
 					rookmove_dest.row = c_1;
 					rookmove_dest.column = c_d;
-					movepiece(b, rookmove_source, rookmove_dest);
+					movepiece(b, rookmove_source, rookmove_dest); //move the rook
 					return 1;
 				}
 				else if(d.row == c_1 && d.column == c_g) {
@@ -193,6 +213,7 @@ castling: if that particular castling square is enabled then do it
 		}
 	}		
 	else if(player == BLACK) { //lots of duplication of code here but theres no way around it
+		//if you have problems understanding below code, see corresponding section for white. (which has been commented)
 		if(b->sq[d.row][d.column].piece >= u_bK && b->sq[d.row][d.column].piece <= u_bp)
 			return 0;
 		if (b->sq[s.row][s.column].piece == u_bN) {
@@ -202,7 +223,7 @@ castling: if that particular castling square is enabled then do it
 				return 0;
 		}
 		else if(b->sq[s.row][s.column].piece == u_bR) {
-			if(d.row == s.row ^ d.column == s.column) {
+			if((d.row == s.row) ^ (d.column == s.column)) {
 				if(s.row == c_8 && s.column == c_a)
 					if(b->sq[c_8][c_c].info & B_CASTLE_SQ)
 						b->sq[c_8][c_c].info = b->sq[c_8][c_c].info - B_CASTLE_SQ;

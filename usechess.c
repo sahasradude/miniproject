@@ -1,16 +1,30 @@
+/* This file is part of project.
+
+    project is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    project is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with project.  If not, see <http://www.gnu.org/licenses/>.*/
 #include <stdio.h>
 #include <wchar.h>
 #include <locale.h>
 #include <stdlib.h>
-#include <time.h>
+#include <unistd.h>
 #include "setup_printchess.h"
 #include "movechess.h"
 #include "stack.h"
 #include "attackchess.h"
 void intro() { 
 	int i;
-	system("reset");
-	system("setterm -cursor off");
+	system("reset"); //resets the screen
+	system("setterm -cursor off");//turns off the cursor 
 	for(i = 0; i < 33; i++) {
 		if(i%2 == 0)
 			wprintf(L"%lc ", u_none);
@@ -50,9 +64,23 @@ void intro() {
 }
 void outro() {
 	//exit sequence
+	int i;
 	system("reset");
 	system("setterm -cursor off");
-	wprintf(L"\n\n\n\n\n\n\n\t\t\t\t\tTHANK YOU FOR PLAYING!\n");
+	for(i = 0; i < 33; i++) {
+		if(i%2 == 0)
+			wprintf(L"%lc ", u_none);
+		else
+			wprintf(L"%lc ", u_none_black);
+	}
+	wprintf(L"\n\n\n\n\t\t\tTHANK YOU FOR PLAYING!\n\n\n\n");
+	for(i = 0; i < 33; i++) {
+		if(i%2 == 0)
+			wprintf(L"%lc ", u_none);
+		else
+			wprintf(L"%lc ", u_none_black);
+	}
+	wprintf(L"\n");
 	sleep(3);
 	system("reset");
 	//end of exit sequence
@@ -67,13 +95,12 @@ int main() {
 	init(&st);
 	initboard(&b);
 	setboard(&b);
-	int prom;
-	int i;
 	int set = 0;
 	char state = WHITE;
 	coordinates s, d;
 	int mv;
 	int select;
+	int wpoint, bpoint;
 	char filename[32];
 	wchar_t source[16], dest[16];
 	//end of initialisations
@@ -103,11 +130,19 @@ int main() {
 			break;
 	}
 	system("reset");
-	attacking_squares(&b, state == BLACK ? WHITE : BLACK);
+	attacking_squares(&b, state == BLACK ? WHITE : BLACK); //finds all squares which are attacked by opponent
 	printboard(&b);
-	push(&st, b);
-	state == WHITE ? wprintf(L"WHITE TO PLAY\n") : wprintf(L"BLACK TO PLAY\n");
+	push(&st, b);//pushes into a stack for undo purposes 
 	while(1) {
+		state == WHITE ? wprintf(L"WHITE TO PLAY\n") : wprintf(L"BLACK TO PLAY\n"); 
+		wpoint = pointcount(&b, BLACK); 
+		bpoint = pointcount(&b, WHITE);
+		wprintf(L"POINTS: \nWHITE: %d : BLACK: %d\n",wpoint,bpoint);
+		if (wpoint == 38 && bpoint == 38) {
+			wprintf(L"ONLY KINGS LEFT, NO ONE WINS!\n");
+			sleep(5);
+			break;
+		}
 		if(check(&b, state)) {
 			if(checkmate(&b, state)){
 				wprintf(L"CHECKMATE:\n");
@@ -140,7 +175,7 @@ int main() {
 			}
 			goto undo;
 		}
-		if(source[0] == L's'|| source[0] == L'S') {
+		if(source[0] == L's'|| source[0] == L'S') { //save to a file
 			wprintf(L"enter filename\n");
 			wscanf(L"%s", filename);
 			savetofile(&b, state, filename);
@@ -205,18 +240,14 @@ int main() {
 			prev = b;
 			continue;
 		}
-undo:
+undo:						
 		attacking_squares(&b, state);
-		system("clear");
+		system("clear"); //clear is used here instead of reset because reset is slow
 		printboard(&b);	
 		push(&st, b);
 		state = (state == WHITE) ? BLACK : WHITE;
-		if (state == WHITE)
-			wprintf(L"WHITE TO PLAY\n");
-		else
-			wprintf(L"BLACK TO PLAY\n");
 	}
-	outro();
+	outro(); //exit sequence
 	return 0;
 }
 

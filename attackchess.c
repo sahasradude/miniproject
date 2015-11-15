@@ -1,3 +1,20 @@
+/* This file is part of project.
+
+    project is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    project is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with project.  If not, see <http://www.gnu.org/licenses/>.*/
+
+
+
 #include "attackchess.h"
 //sees all the squares which all pieces of a particular player can attack
 void attacking_squares(board *b, char player){
@@ -68,6 +85,8 @@ void attacking_squares(board *b, char player){
 coordinates kingfind(board *b, char player) { //locates the square on which the king is 
 	int i, j;
 	coordinates kingsq;
+	kingsq.row = -1;
+	kingsq.column = -1;
 	if(player == WHITE) {
 	for (i = c_8; i <= c_1; i++)
 		for(j = c_a; j <= c_h; j++)
@@ -86,15 +105,14 @@ coordinates kingfind(board *b, char player) { //locates the square on which the 
 				return kingsq;
 			}
 	}
+	return kingsq;
 }
 				
 
 int check(board *b, char player) {
 	//finds the king and then checks if his square is attacked by an enemy piece. if yes, then it is a check.
 	coordinates kingsq;
-	board btemp = *b;
 	kingsq = kingfind(b, player);
-	//wprintf(L"KING SQUARE = %d %d\n", kingsq.row, kingsq.column);
 	return (b->sq[kingsq.row][kingsq.column].info & ATTACKED);
 }	
 int checkmate(board *b, char player) {
@@ -146,15 +164,60 @@ int stalemate (board *b, char player) {
 						btemp2 = btemp; 
 						movepiece(&btemp2, s, d); //move piece and update all attacked squares
 						attacking_squares(&btemp2, player == WHITE ? BLACK : WHITE);
-						if(!check(&btemp2, player))
+						if(!check(&btemp2, player)) {
+							/*wprintf(L"this is btemp:\n");
+							printboard(&btemp2);*/
 							return 0;
+						}
 					}
 				}
 	return 1; //1 will only be returned if there are no such valid moves for the player
 }
-
-
-
+//find the number of points for a given player and board
+int pointcount(board *b, char player) { // knight/bishop = 3, rook = 5, queen = 8, pawn = 1
+	int i, j;
+	int points = 0;
+	int queencount = 0;
+	if (player == WHITE) {
+		for(i = c_8; i <= c_1; i++)
+			for(j = c_a; j <= c_h; j++) {
+				if(b->sq[i][j].piece == u_wp)
+					points++;
+				else if(b->sq[i][j].piece == u_wN || b->sq[i][j].piece == u_wB)
+					points = points + 3;
+				else if(b->sq[i][j].piece == u_wR)
+					points = points + 5;
+				else if(b->sq[i][j].piece == u_wQ) {
+					queencount++;
+					if (queencount == 1) //pawn promotion to queen might cause two queens on the board
+						points = points + 8;
+					else
+						points = points + queencount - 1;
+				}
+			}
+	}
+	else if (player == BLACK) {
+		for(i = c_8; i <= c_1; i++)
+			for(j = c_a; j <= c_h; j++) {
+				if(b->sq[i][j].piece == u_bp)
+					points++;
+				else if(b->sq[i][j].piece == u_bN || b->sq[i][j].piece == u_bB)
+					points = points + 3;
+				else if(b->sq[i][j].piece == u_bR)
+					points = points + 5;
+				else if(b->sq[i][j].piece == u_bQ){
+					queencount++;
+					if (queencount == 1) //pawn promotion to queen might cause two or more queens on the board
+						points = points + 8;
+					else
+						points = points + queencount - 1;
+				}
+			}
+	}
+	return 38 - points; /* max points = 2 * value of knight + 2 * value of bishop + 2 * value of rook + value of queen + 8 * value of pawn
+			      = 4*3 + 2*5 + 8*1 + 8 
+			      = 38. so points of pieces captured = 38 - total points on field*/
+}
 
 
 	

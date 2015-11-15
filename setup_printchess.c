@@ -1,3 +1,19 @@
+/* This file is part of project.
+
+    project is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    project is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with project.  If not, see <http://www.gnu.org/licenses/>.*/
+
+
 #include <stdio.h>
 #include "setup_printchess.h"
 void initboard (board *b) {
@@ -8,7 +24,7 @@ void initboard (board *b) {
 				b->sq[i][j].info = ONBOARD;
 			else 
 				b->sq[i][j].info = OFFBOARD;//these squares are here to prevent segfault when an onboard piece like eg knight 
-							    //are being checked for valid move squares. having some buffer around board makes							    	    //things easier
+			//are being checked for valid move squares. having some buffer around board makes							    	    //things easier
 		}
 	}
 }
@@ -105,6 +121,9 @@ void printboard(board *b) { //prints the board
 		}
 		for (j = 0; j < 12; j++) {
 			if (b->sq[i][j].info & ONBOARD) {
+			/*	if ((b->sq[i][j].info & ATTACKED) && !(b->sq[i][j].info & OCCUPIED)) 
+					wprintf(L" %lc ", u_none_black);
+				else*/
 					wprintf(L" %lc ", b->sq[i][j].piece);
 			}
 			else 
@@ -115,12 +134,12 @@ void printboard(board *b) { //prints the board
 	wprintf(L"        a  b  c  d  e  f  g  h\n");
 }
 /*saves the board to a file
-board will be stored in the following way: 
-	first the player,
-	then piece in a1, then info of a1 square,
-	then piece in a2, then info of a2 square, 
-	...and so on for all 64 squares, each on a new line.
-*/
+  board will be stored in the following way: 
+  first the player,
+  then piece in a1, then info of a1 square,
+  then piece in a2, then info of a2 square, 
+  etc for all pieces without any spaces in between, or new line characters
+ */
 void savetofile(board *b, char player, char *filename) {
 	int i, j;
 	FILE *fp = fopen(filename, "w+");
@@ -154,4 +173,4 @@ char readfromfile(board *b, char *filename) {
 
 
 
-	
+
